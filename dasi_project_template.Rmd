@@ -1,0 +1,128 @@
+---
+title: Relationship between respondent's highest degree and opinion about suicide
+  if tired of living
+output:
+  html_document:
+    theme: cerulean
+date: "Oct.13 2014"
+---
+
+<!-- For more info on RMarkdown see http://rmarkdown.rstudio.com/ -->
+
+<!-- Enter the code required to load your data in the space below. The data will be loaded but the line of code won't show up in your write up (echo=FALSE) in order to save space-->
+
+<!-- In the remainder of the document, add R code chunks as needed -->
+
+### Introduction:
+
+  This is a Data Analysis project for the Data Analysis and Statistical Inference course of Coursera. My main goal with this work is to find whether there is a relationship between the highest degree of education and the opinion about suicide if they are tired of living. I believe that studying the relationship between the highest degree of education and their opinion of pressure can help preventing the probability of suicide. This work can be important for sociologists or psychologists, that want to have a better understanding of the human pressure associated with the education degree.
+
+### Data:
+
+  Since 1972, the General Social Survey (GSS) has been monitoring societal change and studying the growing complexity of American society. The GSS aims to gather data on contemporary American society in order to monitor and explain trends and constants in attitudes, behaviors, and attributes; to examine the structure and functioning of society in general as well as the role played by relevant subgroups; to compare the United States to other societies in order to place American society in comparative perspective and develop cross-national models of human society; and to make high-quality data easily accessible to scholars, students, policy makers, and others, with minimal cost and waiting. The General Social Survey was conducted face-to-face with an in-person interview of adults (18+) in randomly selected households. The survey was conducted every year from 1972 to 1994 (except in 1979, 1981, and 1992). Since 1994, it has been conducted every other year. The survey takes about 90 minutes to administer. There are a total of 57,061 cases and 114 variables in the data set used for this project.
+  
+  Each case represents a questionnaire completed either on the internet or in a face-to-face interview.
+  
+  The study uses two variables chosen from those collected by GSS survey and I use degree and suicide4 in the GSS data only from year of 2012 and omit all the NA answer, therefore it contains 1254 cases.
+  
+* degree: respondent's highest degree. It is a categorical variable that represent the respondent's highest degree of education.
+* suicide4: respondent's opinion on suicide if tired of living. It is a categorical variable that represent the respondent's opinion about whether he/she will suicide if tired of living.
+    
+  This is an **observational study**, because the data was collected by a survey and there is no interference in this data.
+  
+  The population of interest is the working US population. As full probability sampling was conducted, the findings **can be generalised to the entire working US population**.
+Since the respondents can have the option of not answer a question, it means there may be a non-response source of bias.
+
+  Since the data come from a survey, here was no random assignment to the explanatory/independent variableit , **so we can establish only correlation between the variables examined and not causation**.
+
+### Exploratory data analysis:
+
+Before exploring the data, we create a dataset with the two variables of interest for the year 2012 and we give them a clearer label. We obtain a sample size of 1254 observations.
+
+```{r}
+# load the required data
+# load(url("http://d396qusza40orc.cloudfront.net/statistics/project/gss.Rdata"))
+load("gss.Rdata")
+gss2012_with_na <- subset(gss, year == 2012, select = c(caseid, degree, suicide4))
+gss2012 <- gss2012_with_na[complete.cases(gss2012_with_na), ]
+```
+
+We can summary it and plot the data.
+
+```{r}
+# the summary of gss2012
+summary(gss2012)
+```
+
+The respondent's highest degree is a categorical variable that represent the respondent's highest degree of education and Suicide if tired of living is a categorical variable that represent the respondent's opinion about whether he/she will suicide if tired of living.
+```{r}
+# the summary of degree
+summary(gss2012$degree)
+
+# the summary of suicide
+summary(gss2012$suicide4)
+
+plot(gss2012$suicide4 ~ gss2012$degree)
+```
+
+From the data, degree is exploratory and suicide4 is response. It seems that there exists a positive association, but we need statistical inference to deal with it to conclude the result.
+
+### Inference:
+
+Since both variables are categorical variables with 2+ levels, I'll try to use hypotheses test and chi-square independence test.
+
+* H0: Highest degree and opinion on suicide when tired of living are independent. The opinion do not vary by one's highest degree.
+* HA: Highest degree and opinion on suicide when tired of living are not independent. The opinion do vary by one's highest degree.
+
+Before testing these hypotheses, we must check the conditions of use for chi-square independence test:
+```{r}
+table(gss2012$suicide4, gss2012$degree)
+```
+
+1. Independence: is met
+  - known from the data collection, the data are random sampled
+  - size of sample is 1254, much less than 10% of population
+  - each case only contributes to one cell in the table
+2. Sample size:  is met
+  - Each cell in the table are bigger than 5, i.e. have at least 5 expected cases
+  
+For all conditions are met, I'll test the hypothesis at the 5% significance level (which is default in inferance function).
+
+As earlier stated, we will use chi-square independence test to determine. We use chi-square independence test because we are comparing categorical variables with with more than two levels.
+```{r}
+source("http://d396qusza40orc.cloudfront.net/statistics/lab_resources/inference.R")
+
+inference(y = gss2012$suicide4, x = gss2012$degree, est = "proportion", type = "ht", alternative = "greater", method = "theoretical", inf_plot = FALSE, eda_plot= FALSE, sum_stats =FALSE )
+```
+
+With such a pretty small p-value (< alpha = 5% significance), we can reject the H0 and in favour of the HA: highest degree and opinion on suicide when tired of living are not independent. The opinion do vary by one's highest degree.
+
+### Conclusion:
+
+From the study above, we could conclusion that there is relationship between one's highest degree and opinion on suicide when tired of living. But because the study was observation and without random assignment, we couldn't conclude that one with higher degree is more likely to suicide when tired of living. We used data from the 2012 edition of General Social Survey (GSS) so that we could generalize our results to the entire United States residents population.
+
+Future research could address other facors and by using more sophisticated statistical techniques.
+
+Since the study only use the data from year of 2012, therefore it could be even interesting repeating the study for other years covered by GSS survey (1972--2012) and compare the results.
+
+### Reference:
+
+1. GSS data can be access here:http://bit.ly/dasi_gss_data.
+
+2. Smith, Tom W., Michael Hout, and Peter V. Marsden. General Social Survey, 1972-2012 [Cumulative File]. ICPSR34802-v1. Storrs, CT: Roper Center for Public Opinion
+
+Research, University of Connecticut /Ann Arbor, MI: Inter-university Consortium for Political and Social Research [distributors], 2013-09-11. doi:10.3886/ICPSR34802.v1
+
+Persistent URL: http://doi.org/10.3886/ICPSR34802.v1
+
+3. other's result:
+
+https://github.com/gdwangh/Data-Analysis-and-Statistical-Inference/blob/master/courseproject/dasi_project_Data%20Analysis.Rmd
+
+https://github.com/rmswartz/Data_Analysis_and_Statistical_Inference/blob/master/DASI_Project_20140407.Rmd
+
+### Appendix:
+```{r}
+head(gss2012, n=30)
+```
+
